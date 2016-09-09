@@ -25,7 +25,7 @@ div.
       </form>
     </div>
 
-And of course you need the CSS. If you don't want o host it locally, use their
+And of course you need the CSS. If you don't want to host it locally, use their
 CDN by adding this piece to the header.
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/css/bootstrap.min.css" integrity="2hfp1SzUoho7/TsGGGDaFdsuuDL0LX2hnUp6VkX3CUQ2K4K+xjboZdsXyp4oUHZj" crossorigin="anonymous">
@@ -33,6 +33,8 @@ CDN by adding this piece to the header.
 For more information on using Bootstrap 4-alpha, check out http://v4-alpha.getbootstrap.com/ .
 
 # Installation
+
+Eventually, this will be a full fledged package, and you will be able to do this.
 
     pip install effortless_bootstrap_web_form_monkey_patch
 
