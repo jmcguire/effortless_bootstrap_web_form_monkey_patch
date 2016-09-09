@@ -38,7 +38,7 @@ For more information on using Bootstrap 4-alpha, check out http://v4-alpha.getbo
 
 # Author
 
-Justin McGuire <jm@landewdstar.com> <@landedstar.com> http://landedstar.com
+Justin McGuire &mdash; <jm@landedstar.com> &mdash; <a href="https://twitter.com/landedstar">@landedstar.com</a> &mdash; http://landedstar.com
 
 # License
 
