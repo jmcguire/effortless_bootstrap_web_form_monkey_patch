@@ -21,6 +21,7 @@ def patch():
   web.form.Input.group_start = div_form_group
   web.form.Input.group_end = end_div
   web.form.Input.group_title = label
+  web.form.Input.has_error = has_error
   web.form.Checkbox.group_start = div_form_check
   web.form.Checkbox.group_end = end_label_div
   web.form.Checkbox.group_title = label_checkbox
@@ -52,6 +53,13 @@ def end_fieldset(self):
 def end_label_div(Self):
   return '</label></div>'
 
+# convenient methods
+
+def has_error(self):
+  """a well-named shortcut for error-checking the web.form way"""
+  if self.note: return True
+  else: return False
+
 
 def Form_render(self):
   out = ''
@@ -67,10 +75,11 @@ def Form_render(self):
       out += i.render() + "\n"
       out += i.group_end() + "\n"
       # out += '<div class="form-control-feedback">%s</div>' % self.rendernote(i.note)
-      if len(i.note) > 60
+      if i.post and len(i.post) > 60:
         out += '<p class="form-text text-muted">%s</p>' % utils.safeunicode(i.post) 
-      elif i.note:
+      elif i.post:
         out += '<small class="text-muted">%s</small>' % utils.safeunicode(i.post) 
+
   return out
 
 def Form_rendernote(self, note):
@@ -85,13 +94,18 @@ def Input_render(self):
   attrs['type'] = self.get_type()
   attrs['id'] = self.name
   attrs['name'] = self.name
+
   if 'class' in attrs:
     attrs['class'] += ' form-control'
-  else
+  else:
     attrs['class'] = 'form-control'
-  # TODO if doesn't validate, add form-control-danger to class
+
+  if self.has_error():
+    attrs['class'] += ' form-control-danger'
+
   if self.value is not None:
     attrs['value'] = self.value
+
   return '<input %s>' % attrs
 
 
@@ -102,7 +116,7 @@ def File_render(self):
   attrs['name'] = self.name
   if 'class' in attrs:
     attrs['class'] += ' form-control-file'
-  else
+  else:
     attrs['class'] = 'form-control-file'
   if self.value is not None:
     attrs['value'] = self.value
@@ -113,12 +127,17 @@ def Textarea_render(self):
   attrs = self.attrs.copy()
   attrs['id'] = self.name
   attrs['name'] = self.name
+
   if 'class' in attrs:
     attrs['class'] += ' form-control'
-  else
+  else:
     attrs['class'] = 'form-control'
-  # TODO if doesn't validate, add form-control-danger to class
+
+  if self.has_error():
+    attrs['class'] += ' form-control-danger'
+
   value = net.websafe(self.value or '')
+
   return '<textarea %s>%s</textarea>' % (attrs, value)
 
 
@@ -126,15 +145,18 @@ def Dropdown_render(self):
   attrs = self.attrs.copy()
   attrs['id'] = self.name
   attrs['name'] = self.name
+
   if 'class' in attrs:
     attrs['class'] += ' form-control'
-  else
+  else:
     attrs['class'] = 'form-control'
-  # TODO if doesn't validate, add form-control-danger to class
+
+  if self.has_error():
+    attrs['class'] += ' form-control-danger'
 
   out = '<select %s>\n' % attrs
   for arg in self.args:
-    out += self._render_option(arg)
+    out += self._render_option(arg, '')
   out += '</select>\n'
 
   return out
@@ -144,11 +166,14 @@ def GroupedDropdown_render(self):
   attrs = self.attrs.copy()
   attrs['id'] = self.name
   attrs['name'] = self.name
+
   if 'class' in attrs:
     attrs['class'] += ' form-control'
-  else
+  else:
     attrs['class'] = 'form-control'
-  # TODO if doesn't validate, add form-control-danger to class
+
+  if self.has_error():
+    attrs['class'] += ' form-control-danger'
 
   out = '<select %s>\n' % attrs
 
@@ -159,6 +184,7 @@ def GroupedDropdown_render(self):
     out +=  '  </optgroup>\n'
 
   out += '</select>\n'
+
   return out
 
 
@@ -183,13 +209,15 @@ def Radio_render(self):
 
     if 'class' in attrs:
       attrs['class'] += ' form-check-input'
-    else
+    else:
       attrs['class'] = 'form-check-input'
-    # TODO if doesn't validate, add form-control-danger to class
+
+    if self.has_error():
+      attrs['class'] += ' form-control-danger'
 
     if self.value == value:
       attrs['checked'] = 'checked'
-    out += '<input %s/> %s' % (attrs, net.websafe(desc))
+    out += '<input %s> %s' % (attrs, net.websafe(desc))
 
     out += '</label></div>'
 
@@ -205,13 +233,15 @@ def Checkbox_render(self):
 
   if 'class' in attrs:
     attrs['class'] += ' form-check-input'
-  else
+  else:
     attrs['class'] = 'form-check-input'
-  # TODO if doesn't validate, add form-control-danger to class
+
+  if self.has_error():
+    attrs['class'] += ' form-control-danger'
 
   if self.checked:
     attrs['checked'] = 'checked'
-  return '<input %s> %s' % (attrs, net.websafe(desc))
+  return '<input %s> %s' % (attrs, net.websafe(self.description))
 
 
 def Button_render(self):
@@ -220,7 +250,7 @@ def Button_render(self):
   attrs['name'] = self.name
   if 'class' in attrs:
     attrs['class'] += ' btn btn-primary'
-  else
+  else:
     attrs['class'] = 'btn btn-primary'
   attrs['type'] = 'submit'
   if self.value is not None:
