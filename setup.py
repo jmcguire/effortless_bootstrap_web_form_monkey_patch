@@ -1,8 +1,11 @@
 from setuptools import setup
 
 def readme():
-  with open('README.md') as f:
-    return f.read()
+  try:
+    import pypandoc
+    return pypandoc.convert('README.md', 'rst')
+  except ImportError:
+    return open('README.md').read()
 
 setup(name='effortless_bootstrap_web_form_monkey_patch',
       version='0.1',
