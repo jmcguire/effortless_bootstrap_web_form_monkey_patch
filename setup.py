@@ -8,11 +8,11 @@ def readme():
     return open('README.md').read()
 
 setup(name='effortless_bootstrap_web_form_monkey_patch',
-      version='0.1',
+      version='0.2',
       description='Patch the old Form classes in web.py to create Bootstrap-compatible forms',
       long_description=readme(),
       classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP :: WSGI',
