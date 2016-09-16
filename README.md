@@ -40,6 +40,7 @@ Eventually, this will be a full fledged package, and you will be able to do this
 
 ## Inspiration
 
+ - Bootstrap 4 alpha form documentation at http://v4-alpha.getbootstrap.com/components/forms/
  - Runtime patching was learned at https://tryolabs.com/blog/2013/07/05/run-time-method-patching-python/
 
 ## Author
