@@ -7,7 +7,7 @@ import web.form
 import web.utils as utils, web.net as net
 
 def patch():
-  """change class methods in web/form.py"""
+  """monkey-patch class methods in web/form.py"""
   # update the render methods
   web.form.Form.render = Form.__dict__['render']
   web.form.Form.rendernote = Form.__dict__['rendernote']
@@ -32,9 +32,6 @@ def patch():
   web.form.Radio.group_title = Radio.__dict__['group_title']
 
   web.form.Input.has_error = Input.__dict__['has_error']
-
-
-# convenient methods
 
 
 class Form(web.form.Form):
@@ -111,7 +108,7 @@ class Input(web.form.Input):
     else: return False
 
 
-class File(Input):
+class File(Input, web.form.File):
   def render(self):
     attrs = self.attrs.copy()
     attrs['type'] = self.get_type()
@@ -128,7 +125,7 @@ class File(Input):
 
     return '<input %s>' % attrs
 
-class Textarea(Input):
+class Textarea(Input, web.form.Textarea):
   def render(self):
     attrs = self.attrs.copy()
     attrs['id'] = self.name
@@ -147,7 +144,7 @@ class Textarea(Input):
     return '<textarea %s>%s</textarea>' % (attrs, value)
 
 
-class Dropdown(Input):
+class Dropdown(Input, web.form.Dropdown):
   def render(self):
     attrs = self.attrs.copy()
     attrs['id'] = self.name
@@ -169,7 +166,7 @@ class Dropdown(Input):
     return out
 
 
-class GroupedDropdown(Dropdown):
+class GroupedDropdown(Dropdown, web.form.GroupedDropdown):
   def render(self):
     attrs = self.attrs.copy()
     attrs['id'] = self.name
@@ -196,7 +193,7 @@ class GroupedDropdown(Dropdown):
     return out
 
 
-class Radio(Input):
+class Radio(Input, web.form.Radio):
   def render(self):
     out = ''
 
@@ -250,7 +247,7 @@ class Radio(Input):
     return '</fieldset>'
 
 
-class Checkbox(Input):
+class Checkbox(Input, web.form.Checkbox):
   def render(self):
     attrs = self.attrs.copy()
     attrs['type'] = 'checkbox'
@@ -288,7 +285,7 @@ class Checkbox(Input):
     return '</label></div>'
 
 
-class Button(Input):
+class Button(Input, web.form.Button):
   def render(self):
     attrs = self.attrs.copy()
     attrs['id'] = self.name
@@ -308,9 +305,9 @@ class Button(Input):
     return '<button %s>%s</button>' % (attrs, html)
 
 # classes we don't need to change at all
-class Textbox(Input): pass
-class Password(Input): pass
-class Hidden(Input): pass
+class Textbox(Input, web.form.Textbox): pass
+class Password(Input, web.form.Password): pass
+class Hidden(Input, web.form.Hidden): pass
 class Validator(web.form.Validator): pass
 class regexp(Validator): pass
 
