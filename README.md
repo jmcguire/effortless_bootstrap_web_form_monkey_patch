@@ -1,4 +1,4 @@
-# Synopsis
+# Effortless Bootstrap Web/Form Monkey Patch
 
 Patch the old Form classes in web.py to create Bootstrap-compatible forms
 
@@ -6,7 +6,7 @@ Just because web.py hasn't been updated since 2012 doesn't mean you have to
 settle for outdated HTML layouts. Scrap that 2001-era table-based form layout,
 and use this module to create shiny, new Bootstrap 4-alpha forms!
 
-# Example
+## Example
 
 To update your old webforms, just import and use the `patch()` function.
 
@@ -32,17 +32,21 @@ CDN by adding this piece to the header.
 
 For more information on using Bootstrap 4-alpha, check out http://v4-alpha.getbootstrap.com/ .
 
-# Installation
+## Installation
 
 Eventually, this will be a full fledged package, and you will be able to do this.
 
     pip install effortless_bootstrap_web_form_monkey_patch
 
-# Author
+## Inspiration
+
+ - Runtime patching was learned at https://tryolabs.com/blog/2013/07/05/run-time-method-patching-python/
+
+## Author
 
 Justin McGuire &mdash; <jm@landedstar.com> &mdash; <a href="https://twitter.com/landedstar">@landedstar.com</a> &mdash; http://landedstar.com
 
-# License
+## License
 
 MIT License
 

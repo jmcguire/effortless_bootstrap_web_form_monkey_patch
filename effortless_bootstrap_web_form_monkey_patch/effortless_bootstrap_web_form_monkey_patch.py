@@ -7,205 +7,256 @@ import web.form
 import web.utils as utils, web.net as net
 
 def patch():
-  web.form.Form.render = Form_render
-  web.form.Form.rendernote = Form_rendernote
-  web.form.Input.render = Input_render
-  web.form.File.render = File_render
-  web.form.Textarea.render = Textarea_render
-  web.form.Dropdown.render = Dropdown_render
-  web.form.GroupedDropdown.render = GroupedDropdown_render
-  web.form.Radio.render = Radio_render
-  web.form.Checkbox.render = Checkbox_render
-  web.form.Button.render = Button_render
+  """change class methods in web/form.py"""
+  # update the render methods
+  web.form.Form.render = Form.__dict__['render']
+  web.form.Form.rendernote = Form.__dict__['rendernote']
+  web.form.Input.render = Input.__dict__['render']
+  web.form.File.render = File.__dict__['render']
+  web.form.Textarea.render = Textarea.__dict__['render']
+  web.form.Dropdown.render = Dropdown.__dict__['render']
+  web.form.GroupedDropdown.render = GroupedDropdown.__dict__['render']
+  web.form.Radio.render = Radio.__dict__['render']
+  web.form.Checkbox.render = Checkbox.__dict__['render']
+  web.form.Button.render = Button.__dict__['render']
 
-  web.form.Input.group_start = div_form_group
-  web.form.Input.group_end = end_div
-  web.form.Input.group_title = label
-  web.form.Input.has_error = has_error
-  web.form.Checkbox.group_start = div_form_check
-  web.form.Checkbox.group_end = end_label_div
-  web.form.Checkbox.group_title = label_checkbox
-  web.form.Radio.group_start = fieldset_form_group
-  web.form.Radio.group_end = end_fieldset
-  web.form.Radio.group_title = legend
+  # add the new bootstrap-specific methods
+  web.form.Input.group_start = Input.__dict__['group_start']
+  web.form.Input.group_end = Input.__dict__['group_end']
+  web.form.Input.group_title = Input.__dict__['group_title']
+  web.form.Checkbox.group_start = Checkbox.__dict__['group_start']
+  web.form.Checkbox.group_end = Checkbox.__dict__['group_end']
+  web.form.Checkbox.group_title = Checkbox.__dict__['group_title']
+  web.form.Radio.group_start = Radio.__dict__['group_start']
+  web.form.Radio.group_end = Radio.__dict__['group_end']
+  web.form.Radio.group_title = Radio.__dict__['group_title']
 
+  web.form.Input.has_error = Input.__dict__['has_error']
 
-# bootstrap specific components for containing inputs
-
-def div_form_group(self):
-  return '<div class="form-group">'
-def fieldset_form_group(self):
-  return '<fieldset class="form-group">'
-def div_form_check(self):
-  return '<div class="form-check">'
-
-def label(self):
-  return '<label id="%s">%s</label>' % (self.id, net.websafe(self.description))
-def label_checkbox(self):
-  return '<label class="form-check-label">'
-def legend(self):
-  return '<legend>%s</legend>' % (net.websafe(self.description))
-
-def end_div(self):
-  return '</div>'
-def end_fieldset(self):
-  return '</fieldset>'
-def end_label_div(Self):
-  return '</label></div>'
 
 # convenient methods
 
-def has_error(self):
-  """a well-named shortcut for error-checking the web.form way"""
-  if self.note: return True
-  else: return False
 
+class Form(web.form.Form):
+  def render(self):
+    out = ''
+    out += self.rendernote(self.note)
 
-def Form_render(self):
-  out = ''
-  out += self.rendernote(self.note)
+    for i in self.inputs:
+      if i.is_hidden():
+        out += '%s\n' % i.render()
+      else:
+        out += i.group_start() + "\n"
+        out += i.group_title() + "\n"
+        if i.pre:
+          out += '<p class="form-text text-muted">%s</p>' % utils.safeunicode(i.pre) 
+        out += i.render() + "\n"
+        if i.note:
+          out += '<div class="form-control-feedback">%s</div>' % net.websafe(i.note)
+        if i.post and len(i.post) > 60:
+          out += '<p class="form-text text-muted">%s</p>' % utils.safeunicode(i.post) 
+        elif i.post:
+          out += '<small class="text-muted">%s</small>' % utils.safeunicode(i.post) 
+        out += i.group_end() + "\n"
 
-  for i in self.inputs:
-    if i.is_hidden():
-      out += '%s\n' % i.render()
+    return out
+
+  def rendernote(self, note):
+    if note:
+      return '<strong class="wrong">%s</strong>' % net.websafe(note)
     else:
-      out += i.group_start() + "\n"
-      out += i.group_title() + "\n"
-      # out += '<>%s</>' % utils.safeunicode(i.pre) 
-      out += i.render() + "\n"
-      out += i.group_end() + "\n"
-      # out += '<div class="form-control-feedback">%s</div>' % self.rendernote(i.note)
-      if i.post and len(i.post) > 60:
-        out += '<p class="form-text text-muted">%s</p>' % utils.safeunicode(i.post) 
-      elif i.post:
-        out += '<small class="text-muted">%s</small>' % utils.safeunicode(i.post) 
-
-  return out
-
-def Form_rendernote(self, note):
-  if note:
-    return '<strong class="wrong">%s</strong>' % net.websafe(note)
-  else:
-    return ""
+      return ""
 
 
-def Input_render(self):
-  attrs = self.attrs.copy()
-  attrs['type'] = self.get_type()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-
-  if 'class' in attrs:
-    attrs['class'] += ' form-control'
-  else:
-    attrs['class'] = 'form-control'
-
-  if self.has_error():
-    attrs['class'] += ' form-control-danger'
-
-  if self.value is not None:
-    attrs['value'] = self.value
-
-  return '<input %s>' % attrs
-
-
-def File_render(self):
-  attrs = self.attrs.copy()
-  attrs['type'] = self.get_type()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-  if 'class' in attrs:
-    attrs['class'] += ' form-control-file'
-  else:
-    attrs['class'] = 'form-control-file'
-  if self.value is not None:
-    attrs['value'] = self.value
-  return '<input %s>' % attrs
-
-
-def Textarea_render(self):
-  attrs = self.attrs.copy()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-
-  if 'class' in attrs:
-    attrs['class'] += ' form-control'
-  else:
-    attrs['class'] = 'form-control'
-
-  if self.has_error():
-    attrs['class'] += ' form-control-danger'
-
-  value = net.websafe(self.value or '')
-
-  return '<textarea %s>%s</textarea>' % (attrs, value)
-
-
-def Dropdown_render(self):
-  attrs = self.attrs.copy()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-
-  if 'class' in attrs:
-    attrs['class'] += ' form-control'
-  else:
-    attrs['class'] = 'form-control'
-
-  if self.has_error():
-    attrs['class'] += ' form-control-danger'
-
-  out = '<select %s>\n' % attrs
-  for arg in self.args:
-    out += self._render_option(arg, '')
-  out += '</select>\n'
-
-  return out
-
-
-def GroupedDropdown_render(self):
-  attrs = self.attrs.copy()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-
-  if 'class' in attrs:
-    attrs['class'] += ' form-control'
-  else:
-    attrs['class'] = 'form-control'
-
-  if self.has_error():
-    attrs['class'] += ' form-control-danger'
-
-  out = '<select %s>\n' % attrs
-
-  for label, options in self.args:
-    out += '  <optgroup label="%s">\n' % net.websafe(label)
-    for arg in options:
-      out += self._render_option(arg, indent = '    ')
-    out +=  '  </optgroup>\n'
-
-  out += '</select>\n'
-
-  return out
-
-
-def Radio_render(self):
-  out = ''
-
-  for arg in self.args:
-    out += '<div class="form-check">'
-    out += '<label class="form-check-label">'
-
-    if isinstance(arg, (tuple, list)):
-      value, desc= arg
-    else:
-      value, desc = arg, arg 
-
+class Input(web.form.Input):
+  def render(self):
     attrs = self.attrs.copy()
-    attrs['name'] = self.name
+    attrs['type'] = self.get_type()
     attrs['id'] = self.name
     attrs['name'] = self.name
-    attrs['type'] = 'radio'
-    attrs['value'] = value
+
+    if 'class' in attrs:
+      attrs['class'] += ' form-control'
+    else:
+      attrs['class'] = 'form-control'
+
+    if self.has_error():
+      attrs['class'] += ' form-control-danger'
+
+    if self.value is not None:
+      attrs['value'] = self.value
+
+    return '<input %s>' % attrs
+
+  # the next three methods are new, the handle containing the bootstrap fields in a nice box
+
+  def group_start(self):
+    """begin the container for an input"""
+    if self.has_error():
+      return '<div class="form-group has-danger">'
+    else:
+      return '<div class="form-group">'
+
+  def group_title(self):
+    """show the title of this group of inputs"""
+    return '<label id="%s">%s</label>' % (self.id, net.websafe(self.description))
+
+  def group_end(self):
+    """end the container for an input"""
+    return '</div>'
+
+  def has_error(self):
+    """a well-named shortcut for error-checking the web.form way"""
+    if self.note: return True
+    else: return False
+
+
+class File(Input):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['type'] = self.get_type()
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+
+    if 'class' in attrs:
+      attrs['class'] += ' form-control-file'
+    else:
+      attrs['class'] = 'form-control-file'
+
+    if self.value is not None:
+      attrs['value'] = self.value
+
+    return '<input %s>' % attrs
+
+class Textarea(Input):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+
+    if 'class' in attrs:
+      attrs['class'] += ' form-control'
+    else:
+      attrs['class'] = 'form-control'
+
+    if self.has_error():
+      attrs['class'] += ' form-control-danger'
+
+    value = net.websafe(self.value or '')
+
+    return '<textarea %s>%s</textarea>' % (attrs, value)
+
+
+class Dropdown(Input):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+
+    if 'class' in attrs:
+      attrs['class'] += ' form-control'
+    else:
+      attrs['class'] = 'form-control'
+
+    if self.has_error():
+      attrs['class'] += ' form-control-danger'
+
+    out = '<select %s>\n' % attrs
+    for arg in self.args:
+      out += self._render_option(arg, '')
+    out += '</select>\n'
+
+    return out
+
+
+class GroupedDropdown(Dropdown):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+
+    if 'class' in attrs:
+      attrs['class'] += ' form-control'
+    else:
+      attrs['class'] = 'form-control'
+
+    if self.has_error():
+      attrs['class'] += ' form-control-danger'
+
+    out = '<select %s>\n' % attrs
+
+    for label, options in self.args:
+      out += '  <optgroup label="%s">\n' % net.websafe(label)
+      for arg in options:
+        out += self._render_option(arg, indent = '    ')
+      out +=  '  </optgroup>\n'
+
+    out += '</select>\n'
+
+    return out
+
+
+class Radio(Input):
+  def render(self):
+    out = ''
+
+    for arg in self.args:
+      out += '<div class="form-check">'
+      out += '<label class="form-check-label">'
+
+      if isinstance(arg, (tuple, list)):
+        value, desc= arg
+      else:
+        value, desc = arg, arg 
+
+      attrs = self.attrs.copy()
+      attrs['name'] = self.name
+      attrs['id'] = self.name
+      attrs['name'] = self.name
+      attrs['type'] = 'radio'
+      attrs['value'] = value
+
+      if 'class' in attrs:
+        attrs['class'] += ' form-check-input'
+      else:
+        attrs['class'] = 'form-check-input'
+
+      if self.has_error():
+        attrs['class'] += ' form-control-danger'
+
+      if self.value == value:
+        attrs['checked'] = 'checked'
+      out += '<input %s> %s' % (attrs, net.websafe(desc))
+
+      out += '</label></div>'
+
+    return out
+
+  # radio groups have specific container needs, the next three methods handle it
+
+  def group_start(self):
+    """begin the container for a group of radio selections"""
+    if self.has_error():
+      return '<fieldset class="form-group has-danger">'
+    else:
+      return '<fieldset class="form-group">'
+
+  def group_title(self):
+    """show the title of this group of radio selections"""
+    return '<legend>%s</legend>' % (net.websafe(self.description))
+
+  def group_end(self):
+    """end the container for a radio selections"""
+    return '</fieldset>'
+
+
+class Checkbox(Input):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['type'] = 'checkbox'
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+    attrs['value'] = self.value
 
     if 'class' in attrs:
       attrs['class'] += ' form-check-input'
@@ -215,47 +266,51 @@ def Radio_render(self):
     if self.has_error():
       attrs['class'] += ' form-control-danger'
 
-    if self.value == value:
+    if self.checked:
       attrs['checked'] = 'checked'
-    out += '<input %s> %s' % (attrs, net.websafe(desc))
+    return '<input %s> %s' % (attrs, net.websafe(self.description))
 
-    out += '</label></div>'
+  # a checkbox has a specific container needs, the next three methods handle it
 
-  return out
+  def group_start(self):
+    """begin the container for a checkbox"""
+    if self.has_error():
+      return '<div class="form-check has-danger"><label class="form-check-label">'
+    else:
+      return '<div class="form-check"><label class="form-check-label">'
 
+  def group_title(self):
+    """checkbox titles go to the right of the form element"""
+    return ''
 
-def Checkbox_render(self):
-  attrs = self.attrs.copy()
-  attrs['type'] = 'checkbox'
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-  attrs['value'] = self.value
-
-  if 'class' in attrs:
-    attrs['class'] += ' form-check-input'
-  else:
-    attrs['class'] = 'form-check-input'
-
-  if self.has_error():
-    attrs['class'] += ' form-control-danger'
-
-  if self.checked:
-    attrs['checked'] = 'checked'
-  return '<input %s> %s' % (attrs, net.websafe(self.description))
+  def group_end(Self):
+    """end the container for a checkbox"""
+    return '</label></div>'
 
 
-def Button_render(self):
-  attrs = self.attrs.copy()
-  attrs['id'] = self.name
-  attrs['name'] = self.name
-  if 'class' in attrs:
-    attrs['class'] += ' btn btn-primary'
-  else:
-    attrs['class'] = 'btn btn-primary'
-  attrs['type'] = 'submit'
-  if self.value is not None:
-    attrs['value'] = self.value
-  html = attrs.pop('html', None) or net.websafe(self.name)
-  return '<button %s>%s</button>' % (attrs, html)
+class Button(Input):
+  def render(self):
+    attrs = self.attrs.copy()
+    attrs['id'] = self.name
+    attrs['name'] = self.name
+    html = attrs.pop('html', None) or net.websafe(self.name)
 
+    if 'class' in attrs:
+      attrs['class'] += ' btn btn-primary'
+    else:
+      attrs['class'] = 'btn btn-primary'
+
+    attrs['type'] = 'submit'
+
+    if self.value is not None:
+      attrs['value'] = self.value
+
+    return '<button %s>%s</button>' % (attrs, html)
+
+# classes we don't need to change at all
+class Textbox(Input): pass
+class Password(Input): pass
+class Hidden(Input): pass
+class Validator(web.form.Validator): pass
+class regexp(Validator): pass
 

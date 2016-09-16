@@ -18,14 +18,6 @@ class TestPatch(unittest.TestCase):
   def setUp(self):
     patch()
 
-  def test_is_patched(self):
-    self.assertTrue(True)
-
-  def test_form_render(self):
-    result = remove_optional_whitespace(form.Form(form.Textbox("x")).render())
-    correct = '<div class="form-group"><label id="x">x</label><input class="form-control" type="text" id="x" name="x"></div>'
-    self.assertEqual(result, correct)
-
   def test_textbox_render(self):
     result = form.Textbox(name='foo', description='bar').render()
     correct = '<input class="form-control" type="text" id="foo" name="foo">'
@@ -62,6 +54,18 @@ class TestPatch(unittest.TestCase):
   def test_button_render(self):
     result = form.Button(name='foo').render()
     correct = '<button class="btn btn-primary" type="submit" id="foo" name="foo">foo</button>'
+    self.assertEqual(result, correct)
+
+  def test_form_render(self):
+    result = remove_optional_whitespace(form.Form(form.Textbox("x")).render())
+    correct = '<div class="form-group"><label id="x">x</label><input class="form-control" type="text" id="x" name="x"></div>'
+    self.assertEqual(result, correct)
+
+  def test_form_with_error_render(self):
+    input_field = form.Textbox("x")
+    input_field.note = "ERROR"
+    result = remove_optional_whitespace(form.Form(input_field).render())
+    correct = '<div class="form-group has-danger"><label id="x">x</label><input class="form-control form-control-danger" type="text" id="x" name="x"><div class="form-control-feedback">ERROR</div></div>'
     self.assertEqual(result, correct)
 
 

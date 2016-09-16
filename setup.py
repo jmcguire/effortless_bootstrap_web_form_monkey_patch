@@ -21,7 +21,9 @@ setup(name='effortless_bootstrap_web_form_monkey_patch',
       license='MIT',
       packages=['effortless_bootstrap_web_form_monkey_patch'],
       install_requires=[
-        'web',
+        'web.py',
       ],
+      test_suite='nose.collector',
+      tests_require=['nose'],
       zip_safe=False)
 
